@@ -1,4 +1,5 @@
-# Inventory-Management-System:
+# Inventory-Management-System: Overview
+<br>
 The Inventory Management System is a crucial tool for managing stock and keeping track of products in a business. In this system, we're using file handling to utilizing JSON and dictionaries for data storage.
 <br>
 Language Used: Python
