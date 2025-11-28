@@ -57,8 +57,7 @@ python code.py
 Or run inside Jupyter Notebook.
 
 -----------------------------------------------------------------
-
-## Files Explanation
+##  Files Explanation
 
 ### **Records.json**
 Stores all products like:
@@ -67,20 +66,34 @@ Stores all products like:
     "101": {"Name": "Pen", "Price": 10, "Qn": 50},
     "102": {"Name": "Notebook", "Price": 40, "Qn": 20}
 }
+```
 
-Sale.txt
+
+```Sale.txt
 Stores every purchase:
-
 Rahul,rahul@gmail.com,9876543210,101,2,20,Pen,Mon Nov 25 14:20:40 2024
-
-code.py
+```
+## code.py
 The main program containing:
+
 Inventory loading/saving
+
 Purchase system
+
 Sales tracking
+
 Add product feature
+
 Menu system
 
+## Contributing
 
-Author
-Created by : MAYANK THAKUR
+Feedback, suggestions, and improvements are welcome!
+You can fork the repo and submit a pull request.
+
+## Support
+
+If you find this project useful, please give it a star on GitHub — it motivates me to learn and build more!
+
+## Author
+Created by MAYANK THAKUR
