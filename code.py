@@ -1,109 +1,185 @@
-# Importing the Libraries
+# Importing Libraries
 import json
 import time
+import os
 
-# Opening the file in reading mode
-fd = open('Records.json','r')
-js =fd.read()
-fd.close()
+# -------------------------------------------
+# Load Inventory from JSON
+# -------------------------------------------
+def load_inventory():
+    if not os.path.exists("Records.json"):
+        return {}
+    with open("Records.json", "r") as f:
+        return json.load(f)
 
-# Loading the json file data in Records(Dct format) 
-Records = json.loads(js)
-sale =''
+# -------------------------------------------
+# Save Inventory to JSON
+# -------------------------------------------
+def save_inventory(records):
+    with open("Records.json", "w") as f:
+        json.dump(records, f, indent=4)
 
-# Displaying MENU
-print("-"*10,"MENU","-"*10)
-for key in Records:
-    print(Records[key]["Name"],Records[key]["Price"],Records[key]["Qn"])
+# -------------------------------------------
+# Save Sales to Sale.txt
+# -------------------------------------------
+def save_sale(sale_entry):
+    with open("Sale.txt", "a") as f:
+        f.write(sale_entry + "\n")
 
-# Taking input from user    
-print("-"*25)
-ur_name  =  str(input("Enter your Name     : "))
-ur_em    =  str(input("Enter your email id : "))
-ur_phone =  str(input("Enter your phone No : "))
-ur_pi    =  str(input("Enter Product ID    : "))
-ur_qn    =  int(input("Enter Quantity      : "))
+# -------------------------------------------
+# Display all products
+# -------------------------------------------
+def display_inventory(records):
+    print("\n" + "-" * 10, "INVENTORY", "-" * 10)
+    for pid, item in records.items():
+        print(f"ID: {pid} | Name: {item['Name']} | Price: ₹{item['Price']} | Qty: {item['Qn']}")
+    print("-" * 35)
 
-# Checking if we have enough quantity
-if(Records[ur_pi]["Qn"] >= ur_qn):
+# -------------------------------------------
+# Add a new product
+# -------------------------------------------
+def add_product(records):
+    print("\n--- Add New Product ---")
+
+    new_id = input("Enter Product ID: ").strip()
+
+    if new_id in records:
+        print(" Product ID already exists!")
+        return
+
+    name = input("Enter Product Name: ")
     
-# If we're having enough quantity
-     #Generating Bill
-     print("-"*25)
-     print(" "*10,"BILL"," "*10)
-     # Updating quantity
-     Records[ur_pi]["Qn"] = Records[ur_pi]["Qn"] - ur_qn
-     print("Name        : ",Records[ur_pi]["Name"])
-     print("Price       : ",Records[ur_pi]["Price"],"Rs")
-     print("Quantity    : ",ur_qn)
-     
-     # Calculating final Amount
-     total_amount = ur_qn *Records[ur_pi]["Price"]  # Calculate total bill
+    # Validate price
+    while True:
+        try:
+            price = float(input("Enter Price: "))
+            break
+        except:
+            print("Enter a valid number for price!")
 
-     # Applying Discount
-     if total_amount > 7000:
-        discount = total_amount * 0.10  # 10% discount
-        print("You got a 10% discount of ₹", discount)
-     elif total_amount > 5000:
-        discount = 500  # Flat ₹500 discount
-        print("You got a ₹500 discount!")
-     else:
-        discount = 0  # No discount applied
+    # Validate quantity
+    while True:
+        try:
+            qn = int(input("Enter Quantity: "))
+            break
+        except:
+            print("Enter a valid number for quantity!")
 
-     final_amount = total_amount - discount  # Final bill after discount
-     print("-----------------------------")
-     print("Total Amount      : ₹", total_amount)
-     print("Discount Applied  : ₹", discount)
-     print("Final Amount      : ₹", final_amount)
-     print("-----------------------------")
-     sale = ur_name+","+ur_em+","+ur_phone+","+ur_pi+","+str(ur_qn)+","+str(final_amount)+","+Records[ur_pi]["Name"]+","+time.ctime()+'\n'
-else:
-     #If we're not having enough quantity
-     print("-"*25)
-     print("Sorry we're not having enough quantity \nwe're having only "+str(Records[ur_pi]["Qn"]))
-     print("-"*25)
-     ch = input("Press Y/y if you want to purchase: ")
-     if(ch=='y' or ch=='Y'):
-         print("-"*25)
-         print(" "*10,"BILL"," "*10)
-         print("Name        : ",Records[ur_pi]["Name"])
-         print("Price       : ",Records[ur_pi]["Price"],"Rs")
-         print("Quantity    : ",Records[ur_pi]["Qn"])
-         
-         # Calculating final Amount
-         total_amount = Records[ur_pi]["Qn"] *Records[ur_pi]["Price"]  # Calculate total bill
-         # Applying Discount
-         if total_amount > 7000:
-              discount = total_amount * 0.10  # 10% discount
-              print("You got a 10% discount of ₹", discount)
-         elif total_amount > 5000:
-             discount = 500  # Flat ₹500 discount
-             print("You got a ₹500 discount!")
-         else:
-           discount = 0  # No discount applied
+    records[new_id] = {"Name": name, "Price": price, "Qn": qn}
+    save_inventory(records)
+    print(" Product added successfully!")
 
-         final_amount = total_amount - discount  # Final bill after discount
-         print("-----------------------------")
-         print("Total Amount      : ₹", total_amount)
-         print("Discount Applied  : ₹", discount)
-         print("Final Amount      : ₹", final_amount)
-         print("-----------------------------")
-          
-         # Updating quantity
-         Records[ur_pi]["Qn"] = 0
-         # creating sales
-         sale = ur_name+","+ur_em+","+ur_phone+","+ur_pi+","+str(Records[ur_pi]["Qn"])+","+str(final_amount)+","+Records[ur_pi]["Name"]+","+time.ctime()+'\n'
-     else:
-         print("Thanks!")
+# -------------------------------------------
+# View all sales
+# -------------------------------------------
+def view_sales():
+    print("\n--- SALES REPORT ---")
+    if not os.path.exists("Sale.txt"):
+        print("No sales yet!")
+        return
 
+    with open("Sale.txt", "r") as f:
+        data = f.read()
+        print(data if data else "No sales recorded.")
 
-# Updating Inventory
-js = json.dumps(Records)
-fd = open("Records.json","w")
-fd.write(js)
-fd.close()
+# -------------------------------------------
+# Handle purchase process
+# -------------------------------------------
+def purchase(records):
+    display_inventory(records)
 
-# Saving Sales
-fd = open("Sale.txt","a")
-fd.write(sale)
-fd.close()
+    print("\n--- Purchase Product ---")
+    name = input("Enter your Name: ")
+    email = input("Enter your Email: ")
+    phone = input("Enter Phone Number: ")
+
+    product_id = input("Enter Product ID: ")
+
+    if product_id not in records:
+        print(" Invalid Product ID!")
+        return
+
+    # Validate quantity input
+    while True:
+        try:
+            qn = int(input("Enter Quantity to Buy: "))
+            break
+        except:
+            print("Enter a valid number!")
+
+    product = records[product_id]
+
+    # Check stock availability
+    if product["Qn"] < qn:
+        print(f"Only {product['Qn']} available. Do you want to buy all?")
+        choice = input("Press Y to continue: ").lower()
+
+        if choice != "y":
+            print("Purchase cancelled.")
+            return
+
+        qn = product["Qn"]
+
+    # BILL CALCULATION
+    print("\n--- BILL ---")
+    total = qn * product["Price"]
+
+    # Apply discounts
+    if total > 7000:
+        discount = total * 0.10
+    elif total > 5000:
+        discount = 500
+    else:
+        discount = 0
+
+    final = total - discount
+
+    print(f"Name       : {product['Name']}")
+    print(f"Price      : ₹{product['Price']}")
+    print(f"Quantity   : {qn}")
+    print(f"Total      : ₹{total}")
+    print(f"Discount   : ₹{discount}")
+    print(f"Final Bill : ₹{final}")
+
+    # Update inventory
+    product["Qn"] -= qn
+    save_inventory(records)
+
+    # Save sale entry
+    sale_data = f"{name},{email},{phone},{product_id},{qn},{final},{product['Name']},{time.ctime()}"
+    save_sale(sale_data)
+
+    print(" Purchase Successful!")
+
+# -------------------------------------------
+# Main Menu Loop
+# -------------------------------------------
+def main():
+    records = load_inventory()
+
+    while True:
+        print("\n" + "-" * 12 + " MENU " + "-" * 12)
+        print("1. View Inventory")
+        print("2. Add Product")
+        print("3. Purchase Product")
+        print("4. View Sales Report")
+        print("5. Exit")
+
+        choice = input("Enter choice: ")
+
+        if choice == "1":
+            display_inventory(records)
+        elif choice == "2":
+            add_product(records)
+        elif choice == "3":
+            purchase(records)
+        elif choice == "4":
+            view_sales()
+        elif choice == "5":
+            print("Thank You!")
+            break
+        else:
+            print(" Invalid choice! Try again.")
+
+# Run the program
+main()
